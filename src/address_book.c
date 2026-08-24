@@ -21,16 +21,15 @@ struct Address *create_node(const char *name,
 {
     struct Address *new_node = malloc(sizeof(struct Address));
 
-    if (new_node == NULL) {
-        fprintf(stderr, "Memory allocation failed\n");
-    } else {
-        safe_copy(new_node->name, sizeof(new_node->name), name);
-        safe_copy(new_node->surname, sizeof(new_node->surname), surname);
-        safe_copy(new_node->email, sizeof(new_node->email), email);
-        safe_copy(new_node->phone, sizeof(new_node->phone), phone);
-        new_node->next = NULL;
-    }
+    if (new_node == NULL)
+        return NULL;
 
+    safe_copy(new_node->name, sizeof(new_node->name), name);
+    safe_copy(new_node->surname, sizeof(new_node->surname), surname);
+    safe_copy(new_node->email, sizeof(new_node->email), email);
+    safe_copy(new_node->phone, sizeof(new_node->phone), phone);
+    new_node->next = NULL;
+    
     return new_node;
 }
 
@@ -160,7 +159,7 @@ struct Address *find_by_position(struct Address *head, int position)
     return current;
 }
 
-void find_addresses(struct Address *head, const char *field, const char *value)
+int find_addresses(struct Address *head, const char *field, const char *value)
 {
     struct Address *current = head;
     int found = 0;
@@ -183,10 +182,11 @@ void find_addresses(struct Address *head, const char *field, const char *value)
             print_address(current);
             found = 1;
         }
+
         current = current->next;
     }
-    if (!found)
-        printf("Address not found.\n");
+
+    return found;
 }
 
 void print_address(const struct Address *address)
@@ -196,49 +196,6 @@ void print_address(const struct Address *address)
     printf("Email: %s\n", address->email);
     printf("Phone: %s\n", address->phone);
     printf("\n");
-}
-
-int load_from_csv(struct Address **head)
-{
-    char *home = getenv("HOME");
-
-    if (home == NULL)
-        return -1;
-
-    char path[256];
-
-    snprintf(path, sizeof(path), "%s/addresses.csv", home);
-
-    FILE *file = fopen(path, "r");
-
-    if (file == NULL)
-        return 1;
-
-    char line[256];
-
-    while (fgets(line, sizeof(line), file) != NULL) {
-        char *name = strtok(line, ",");
-        char *surname = strtok(NULL, ",");
-        char *email = strtok(NULL, ",");
-        char *phone = strtok(NULL, ",\n");
-
-        if (name == NULL || surname == NULL ||
-            email == NULL || phone == NULL)
-            continue;
-
-        struct Address *new_node = create_node(name, surname, email, phone);
-
-        if (new_node == NULL) {
-            fclose(file);
-            return -1;
-        }
-
-        add_to_list(head, new_node);
-    }
-
-    fclose(file);
-
-    return 0;
 }
 
 int is_valid_position(const struct Address *head, int position)

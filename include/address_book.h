@@ -29,7 +29,7 @@ int delete_at_position(struct Address **head, int position);
 
 struct Address *find_by_position(struct Address *head, int position);
 
-void find_addresses(struct Address *head, const char *field, const char *value);
+int find_addresses(struct Address *head, const char *field, const char *value);
 
 void print_address(const struct Address *address);
 
