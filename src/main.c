@@ -1,7 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include "address_book.h"
+
+static volatile sig_atomic_t interrupted = 0;
+
+static void handle_signal(int signal)
+{
+    (void)signal;
+    interrupted = 1;
+}
 
 static int read_int(int *out)
 {
@@ -47,8 +56,18 @@ static int read_str(char *buf, size_t size)
 
 int main(void)
 {
-    struct Address *head = NULL;
+    struct sigaction sa;
 
+    sa.sa_handler = handle_signal;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+
+    struct Address *head = NULL;
+    
     int result = load_from_csv(&head);
 
     if (result == 1) {
@@ -59,7 +78,7 @@ int main(void)
     int choice;
     int running = 1;
 
-    while (running) {
+    while (running && !interrupted) {
         printf("\n===== ADDRESS BOOK =====\n");
         printf("1. Display all records\n");
         printf("2. Add new address\n");
@@ -323,6 +342,9 @@ int main(void)
             break;
         }
     }
+
+    if (interrupted)
+        printf("\nSignal received. Exiting\n");
 
     free_list(&head);
 
