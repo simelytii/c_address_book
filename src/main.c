@@ -59,10 +59,13 @@ int main(void)
 {
     struct Address *head = NULL;
 
-    if (load_from_csv(&head) != 0) {
-        printf("Failed to load addresses.csv\n");
-    }
+    int result = load_from_csv(&head);
 
+    if (result == 1) {
+        printf("addresses.csv not found. Starting with an empty address book.\n");
+    } else if (result == -1) {
+        printf("Failed to load addresses.csv. Starting with an empty address book.\n");
+    }
     int choice;
     int running = 1;
 

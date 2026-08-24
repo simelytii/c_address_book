@@ -212,7 +212,7 @@ int load_from_csv(struct Address **head)
     FILE *file = fopen(path, "r");
 
     if (file == NULL)
-        return 0;
+        return 1;
 
     char line[256];
 
