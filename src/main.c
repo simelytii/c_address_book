@@ -2,6 +2,59 @@
 #include <stdlib.h>
 #include "address_book.h"
 
+/* Reads an integer from standard input.
+ * Returns  1 on success (value stored in *out).
+ * Returns  0 if the input was not a valid number (leftover input is
+ * discarded so the bad token isn't read again).
+ * Returns -1 if the input stream has ended (EOF) - there is nothing
+ * left to read, so the caller should stop asking. */
+static int read_int(int *out)
+{
+    int result = scanf("%d", out);
+ 
+    if (result == EOF)
+        return -1;
+ 
+    if (result != 1) {
+        int c;
+ 
+        while ((c = getchar()) != '\n' && c != EOF)
+            ;
+        return 0;
+    }
+ 
+    return 1;
+}
+
+/* Reads one whitespace-delimited word from standard input into buf,
+ * storing at most size - 1 characters plus a null terminator.
+ * Any extra characters beyond size - 1 are read and discarded rather
+ * than left in stdin, so they can't corrupt the next read.
+ * Returns 1 on success, 0 if the input stream has ended (EOF). */
+static int read_str(char *buf, size_t size)
+{
+    int c;
+    size_t i = 0;
+ 
+    do {
+        c = getchar();
+    } while (c == ' ' || c == '\t' || c == '\n' || c == '\r');
+ 
+    if (c == EOF)
+        return 0;
+ 
+    while (c != EOF && c != ' ' && c != '\t' && c != '\n' && c != '\r') {
+        if (i < size - 1)
+            buf[i++] = (char)c;
+ 
+        c = getchar();
+    }
+ 
+    buf[i] = '\0';
+ 
+    return 1;
+}
+
 int main(void)
 {
     struct Address *head = NULL;
@@ -11,8 +64,9 @@ int main(void)
     }
 
     int choice;
+    int running = 1;
 
-    while (1) {
+    while (running) {
         printf("\n===== ADDRESS BOOK =====\n");
         printf("1. Display all records\n");
         printf("2. Add new address\n");
@@ -24,7 +78,17 @@ int main(void)
         printf("8. Exit\n");
         printf("\nChoose an option: ");
 
-        scanf("%d", &choice);
+        int status = read_int(&choice);
+
+        if (status == -1) {
+            printf("\nNo more input, exiting.\n");
+            break;
+        }
+
+        if (status == 0) {
+            printf("\nInvalid option, please enter a number\n");
+            continue;
+        }
 
         printf("\n");
 
@@ -40,16 +104,32 @@ int main(void)
             char phone[20];
 
             printf("Enter name: ");
-            scanf("%29s", name);
+            if (!read_str(name, sizeof(name))) {
+                printf("\nNo more input, exiting.\n");
+                running = 0;
+                break;
+            }
 
             printf("Enter surname: ");
-            scanf("%29s", surname);
+            if (!read_str(surname, sizeof(surname))) {
+                printf("\nNo more input, exiting.\n");
+                running = 0;
+                break;
+            }
 
             printf("Enter email: ");
-            scanf("%49s", email);
+            if (!read_str(email, sizeof(email))) {
+                printf("\nNo more input, exiting.\n");
+                running = 0;
+                break;
+            }
 
             printf("Enter phone: ");
-            scanf("%19s", phone);
+            if (!read_str(phone, sizeof(phone))) {
+                printf("\nNo more input, exiting.\n");
+                running = 0;
+                break;
+            }
 
             printf("\n");
 
@@ -74,7 +154,11 @@ int main(void)
             char phone[20];
 
             printf("Enter position: ");
-            scanf("%d", &position);
+
+            if (read_int(&position) != 1) {
+                printf("Invalid position.\n");
+                break;
+            }
 
             if (position < 1) {
                 printf("Invalid position.\n");
@@ -94,16 +178,32 @@ int main(void)
             }
 
             printf("Enter name: ");
-            scanf("%29s", name);
-
+            if (!read_str(name, sizeof(name))) {
+                printf("\nNo more input, exiting.\n");
+                running = 0;
+                break;
+            }
+ 
             printf("Enter surname: ");
-            scanf("%29s", surname);
-
+            if (!read_str(surname, sizeof(surname))) {
+                printf("\nNo more input, exiting.\n");
+                running = 0;
+                break;
+            }
+ 
             printf("Enter email: ");
-            scanf("%49s", email);
-
+            if (!read_str(email, sizeof(email))) {
+                printf("\nNo more input, exiting.\n");
+                running = 0;
+                break;
+            }
+ 
             printf("Enter phone: ");
-            scanf("%19s", phone);
+            if (!read_str(phone, sizeof(phone))) {
+                printf("\nNo more input, exiting.\n");
+                running = 0;
+                break;
+            }
 
             printf("\n");
 
@@ -129,7 +229,10 @@ int main(void)
             int position;
 
             printf("Enter position to delete: ");
-            scanf("%d", &position);
+            if (read_int(&position) != 1) {
+                printf("Invalid position.\n");
+                break;
+            }
 
             printf("\n");
 
@@ -148,7 +251,7 @@ int main(void)
             else {
                 free_list(&head);
                 printf("Address book deleted successfully.\n");
-                }
+            }
 
             break;
 
@@ -156,7 +259,11 @@ int main(void)
             int position;
 
             printf("Enter position: ");
-            scanf("%d", &position);
+            
+            if (read_int(&position) != 1) {
+                printf("Invalid position.\n");
+                break;
+            }
 
             printf("\n");
 
@@ -182,7 +289,10 @@ int main(void)
             printf("4. Phone\n");
             printf("Choose an option: ");
 
-            scanf("%d", &search_choice);
+            if (read_int(&search_choice) != 1) {
+                printf("Invalid search option.\n");
+                break;
+            }
 
             if (search_choice == 1)
                 field = "name";
@@ -198,7 +308,11 @@ int main(void)
             }
 
             printf("Enter %s: ", field);
-            scanf("%49s", search_value);
+            if (!read_str(search_value, sizeof(search_value))) {
+                printf("\nNo more input, exiting.\n");
+                running = 0;
+                break;
+            }
 
             printf("\n");
 
@@ -208,12 +322,16 @@ int main(void)
         }
 
         case 8:
-            free_list(&head);
-            return 0;
+            running = 0;
+            break;
 
         default:
             printf("Invalid option.\n");
             break;
         }
     }
+
+    free_list(&head);
+
+    return 0;
 }

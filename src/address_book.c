@@ -4,6 +4,16 @@
 #include <strings.h>
 #include "address_book.h"
 
+/* Copies src into dest, never writing more than dest_size bytes and
+ * always leaving dest null-terminated (truncates if src is too long).
+ * Prevents heap buffer overflow when loading an oversized field from 
+ * the CSV. */
+static void safe_copy(char *dest, size_t dest_size, const char *src)
+{
+    strncpy(dest, src, dest_size - 1);
+    dest[dest_size - 1] = '\0';
+}
+
 struct Address *create_node(const char *name,
                             const char *surname,
                             const char *email,
@@ -14,10 +24,10 @@ struct Address *create_node(const char *name,
     if (new_node == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
     } else {
-        strcpy(new_node->name, name);
-        strcpy(new_node->surname, surname);
-        strcpy(new_node->email, email);
-        strcpy(new_node->phone, phone);
+        safe_copy(new_node->name, sizeof(new_node->name), name);
+        safe_copy(new_node->surname, sizeof(new_node->surname), surname);
+        safe_copy(new_node->email, sizeof(new_node->email), email);
+        safe_copy(new_node->phone, sizeof(new_node->phone), phone);
         new_node->next = NULL;
     }
 
