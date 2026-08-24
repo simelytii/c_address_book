@@ -243,6 +243,23 @@ int load_from_csv(struct Address **head)
 
 int is_valid_position(const struct Address *head, int position)
 {
+    if (head == NULL || position < 1)
+        return 0;
+
+    const struct Address *current = head;
+
+    for (int i = 1; i < position; i++) {
+        if (current->next == NULL)
+            return 0;
+
+        current = current->next;
+    }
+
+    return 1;
+}
+
+int is_valid_insert_position(const struct Address *head, int position)
+{
     if (position < 1)
         return 0;
 
@@ -250,9 +267,9 @@ int is_valid_position(const struct Address *head, int position)
         return 1;
 
     const struct Address *current = head;
-    for (int i = 1; i < position - 1 && current != NULL; i++) {
+
+    for (int i = 1; i < position - 1 && current != NULL; i++)
         current = current->next;
-    }
 
     return (current != NULL);
 }

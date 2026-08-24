@@ -167,26 +167,10 @@ int main(void)
 
             printf("Enter position: ");
 
-            if (read_int(&position) != 1 || !is_valid_position(head, position)) {
+            if (read_int(&position) != 1 ||
+                !is_valid_insert_position(head, position)) {
                 printf("Invalid position.\n");
                 break;
-            }
-
-            if (position < 1) {
-                printf("Invalid position.\n");
-                break;
-            }
-
-            if (position > 1) {
-                struct Address *current = head;
-
-                for (int i = 1; i < position - 1 && current!= NULL; i++)
-                current = current->next;
-
-                if (current == NULL) {
-                    printf("Invalid position.\n");
-                    break;
-                }
             }
 
             printf("Enter name: ");
