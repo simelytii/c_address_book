@@ -35,4 +35,6 @@ void print_address(const struct Address *address);
 
 int load_from_csv(struct Address **head);
 
+int is_valid_position(const struct Address *head, int position);
+
 #endif

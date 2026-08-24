@@ -1,57 +1,47 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "address_book.h"
 
-/* Reads an integer from standard input.
- * Returns  1 on success (value stored in *out).
- * Returns  0 if the input was not a valid number (leftover input is
- * discarded so the bad token isn't read again).
- * Returns -1 if the input stream has ended (EOF) - there is nothing
- * left to read, so the caller should stop asking. */
 static int read_int(int *out)
 {
-    int result = scanf("%d", out);
- 
-    if (result == EOF)
+    char buf[100];
+    char *endptr;
+    long value;
+
+    if (fgets(buf, sizeof(buf), stdin) == NULL)
         return -1;
- 
-    if (result != 1) {
-        int c;
- 
-        while ((c = getchar()) != '\n' && c != EOF)
-            ;
+
+    value = strtol(buf, &endptr, 10);
+
+    if (endptr == buf)
         return 0;
-    }
- 
+
+    while (*endptr == ' ' || *endptr == '\t')
+        endptr++;
+
+    if (*endptr != '\n' && *endptr != '\0')
+        return 0;
+
+    *out = (int)value;
+
     return 1;
 }
 
-/* Reads one whitespace-delimited word from standard input into buf,
- * storing at most size - 1 characters plus a null terminator.
- * Any extra characters beyond size - 1 are read and discarded rather
- * than left in stdin, so they can't corrupt the next read.
- * Returns 1 on success, 0 if the input stream has ended (EOF). */
 static int read_str(char *buf, size_t size)
 {
-    int c;
-    size_t i = 0;
- 
-    do {
-        c = getchar();
-    } while (c == ' ' || c == '\t' || c == '\n' || c == '\r');
- 
-    if (c == EOF)
+    if (fgets(buf, size, stdin) == NULL)
         return 0;
- 
-    while (c != EOF && c != ' ' && c != '\t' && c != '\n' && c != '\r') {
-        if (i < size - 1)
-            buf[i++] = (char)c;
- 
-        c = getchar();
+
+    if (strchr(buf, '\n') == NULL) {
+        int c;
+
+        while ((c = getchar()) != '\n' && c != EOF)
+            ;
+    } else {
+        buf[strcspn(buf, "\n")] = '\0';
     }
- 
-    buf[i] = '\0';
- 
+
     return 1;
 }
 
@@ -158,7 +148,7 @@ int main(void)
 
             printf("Enter position: ");
 
-            if (read_int(&position) != 1) {
+            if (read_int(&position) != 1 || !is_valid_position(head, position)) {
                 printf("Invalid position.\n");
                 break;
             }
@@ -232,7 +222,7 @@ int main(void)
             int position;
 
             printf("Enter position to delete: ");
-            if (read_int(&position) != 1) {
+            if (read_int(&position) != 1 || !is_valid_position(head, position)) {
                 printf("Invalid position.\n");
                 break;
             }
@@ -263,7 +253,7 @@ int main(void)
 
             printf("Enter position: ");
             
-            if (read_int(&position) != 1) {
+            if (read_int(&position) != 1 || !is_valid_position(head, position)) {
                 printf("Invalid position.\n");
                 break;
             }
