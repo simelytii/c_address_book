@@ -2,7 +2,7 @@
 #define MENU_H
 
 #include <signal.h>
-#include "address_book.h"
+#include "linked_list.h"
 
 void run_menu(struct Address **head,
               const volatile sig_atomic_t *interrupted);

@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "address_book.h"
 #include "menu.h"
 
 static int read_int(int *out)
@@ -44,11 +43,6 @@ static int read_str(char *buf, size_t size)
     }
 
     return 1;
-}
-
-static void display_addresses(const struct Address *head)
-{
-    print_list(head);
 }
 
 static void add_address(struct Address **head)
@@ -192,7 +186,7 @@ static void find_address_at_position(struct Address *head)
     if (address == NULL)
         printf("Address at position %d not found.\n", position);
     else
-        print_address(address);
+        print_node(address);
 }
 
 static void search_addresses(struct Address *head)
@@ -273,7 +267,7 @@ void run_menu(struct Address **head,
 
         switch (choice) {
         case 1:
-            display_addresses(*head);
+            print_list(*head);
             break;
 
         case 2:
