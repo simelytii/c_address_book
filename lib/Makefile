@@ -4,7 +4,9 @@ OBJECT = linked_list.o
 
 CFLAGS = -Wall -Wextra -fPIC
 
-.PHONY: clean
+.PHONY: all clean
+
+all: $(TARGET)
 
 $(TARGET): $(OBJECT)
 	$(CC) -shared -o $@ $^
